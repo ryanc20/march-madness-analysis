@@ -1,0 +1,155 @@
+import pygal
+import csv
+from collections import defaultdict
+
+class TourneyData:
+    def __init__(self):
+        self.teams_csv = "data/Teams.csv"
+        self.tourney_results_csv = "data/TourneyCompactResults.csv"
+        self.tourney_seeds_csv = "data/TourneySeeds.csv"
+        self.tourney_slots_csv = "data/TourneySlots.csv"
+        self.team_dict = {}
+        self.tourney_results_dict = defaultdict(dict)
+        self.tourney_seeds_dict = defaultdict(dict)
+        self.tsr_dict = defaultdict(dict)
+        self.ts_dict = defaultdict(dict)
+
+    def get_team_dict(self):
+        with open(self.teams_csv) as teams_csv:
+            reader = csv.DictReader(teams_csv)
+            for row in reader:
+                team_id = row["Team_Id"]
+                team_name = row["Team_Name"]
+                self.team_dict[team_id] = team_name
+        return self.team_dict
+
+    def get_tourney_results(self):
+        with open(self.tourney_results_csv) as tr_csv:
+            reader1 = csv.DictReader(tr_csv)
+            for row1 in reader1:
+                year = row1["Season"]
+                winning_team = row1["Wteam"]
+                losing_team = row1["Lteam"]
+                self.tourney_results_dict[year].update({winning_team : losing_team})
+        return self.tourney_results_dict
+    
+    def get_tourney_seeds(self):
+        with open(self.tourney_seeds_csv) as ts_csv:
+            reader = csv.DictReader(ts_csv)
+            for row in reader:
+                year = row["Season"]
+                team_seed = row["Seed"]
+                team_name = row["Team"]
+                self.tourney_seeds_dict[year].update({team_seed : team_name})
+        return self.tourney_seeds_dict
+
+    def get_all_data(self):
+        team_dict = self.get_team_dict()
+        tourney_results_dict = self.get_tourney_results()
+        tourney_seeds_dict = self.get_tourney_seeds()
+        ts_dict = self.match_seeds()
+        return team_dict, tourney_results_dict, tourney_seeds_dict, ts_dict
+
+    def match_seeds(self):
+        for year1 in self.tourney_results_dict:
+            for year2 in self.tourney_seeds_dict:
+                if year1 == year2:
+                    for winning_team, losing_team in self.tourney_results_dict[year1].items():
+                        #print(year1, key1, self.tourney_results_dict[year1][key1])
+                        for seed, team in self.tourney_seeds_dict[year2].items():
+                            if winning_team == team:
+                                w_team = team
+                                w_seed = seed
+                            if losing_team == team:
+                                l_team = team
+                                l_seed = seed
+                            year = year1
+                        winning = "{}-{}".format(w_team, w_seed)
+                        losing = "{}-{}".format(l_team, l_seed)
+                        self.tsr_dict[year].update({winning : losing})
+        return self.tsr_dict
+    
+    def get_tourney_slots(self):
+        with open(self.tourney_slots_csv) as ts_csv:
+            reader = csv.DictReader(ts_csv)
+            for row in reader:
+                year = row["Season"]
+                slot = row["Slot"]
+                high_seed = row["Strongseed"]
+                low_seed = row["Weakseed"]
+                match_up = "{}-{}".format(high_seed, low_seed)
+                self.ts_dict[year].update({slot : match_up})
+        return self.ts_dict
+
+    def first_round_history(self):
+        """
+        Analyzes the first round odds for each seed to win/lose (i.e. 1 vs 16, 2 vs 15, ...)
+        Using Pygal SolidGuage charts because they look pretty good
+        """
+        self.ts_dict = self.get_tourney_slots()
+        self.tsr_dict = self.match_seeds()
+        first_seed_win = 0
+        second_seed_win = 0
+        third_seed_win = 0
+        fourth_seed_win = 0
+        fifth_seed_win = 0
+        sixth_seed_win = 0
+        seventh_seed_win = 0
+        eighth_seed_win = 0
+        total_games = 128
+
+        for year1 in self.ts_dict:            
+            for slot, match_up in self.ts_dict[year1].items():
+                if slot[:2] == "R1":
+                    for year2 in self.tsr_dict:
+                        if year1 == year2:
+                            for winning, losing in self.tsr_dict[year2].items():
+                                if winning[5:] == match_up[:3]:
+                                    seed = winning[6:]                                    
+                                    if seed == "01":
+                                        first_seed_win += 1
+                                    elif seed == "02":
+                                        second_seed_win += 1
+                                    elif seed == "03":
+                                        third_seed_win += 1
+                                    elif seed == "04":
+                                        fourth_seed_win += 1
+                                    elif seed == "05":
+                                        fifth_seed_win += 1
+                                    elif seed == "06":
+                                        sixth_seed_win += 1
+                                    elif seed == "07":
+                                        seventh_seed_win += 1
+                                    elif seed == "08":
+                                        eighth_seed_win += 1            
+        
+        #print(first_seed_win, second_seed_win, third_seed_win, fourth_seed_win, fifth_seed_win, sixth_seed_win, seventh_seed_win, eighth_seed_win, total_games)
+
+        gauge = pygal.SolidGauge(inner_radius=0.70, title="NCAA First Round Results")
+        ratio_first_seed = int(first_seed_win / total_games * 100)
+        ratio_second_seed = int(second_seed_win / total_games * 100)
+        ratio_third_seed = int(third_seed_win / total_games * 100)
+        ratio_fourth_seed = int(fourth_seed_win / total_games * 100)
+        ratio_fifth_seed = int(fifth_seed_win / total_games * 100)
+        ratio_sixth_seed = int(sixth_seed_win / total_games * 100)
+        ratio_seventh_seed = int(seventh_seed_win / total_games * 100)
+        ratio_eighth_seed = int(eighth_seed_win / total_games * 100)     
+
+        percent_formatter = lambda x: '{:.10g}%'.format(x)
+        gauge.value_formatter = percent_formatter
+        gauge.add('1 vs. 16', [{'value': ratio_first_seed, 'max_value': 100}])
+        gauge.add('2 vs. 15', [{'value': ratio_second_seed, 'max_value': 100}])
+        gauge.add('3 vs. 14', [{'value': ratio_third_seed, 'max_value': 100}])
+        gauge.add('4 vs. 13', [{'value': ratio_fourth_seed, 'max_value': 100}])
+        gauge.add('5 vs. 12', [{'value': ratio_fifth_seed, 'max_value': 100}])
+        gauge.add('6 vs. 11', [{'value': ratio_sixth_seed, 'max_value': 100}])
+        gauge.add('7 vs. 10', [{'value': ratio_seventh_seed, 'max_value': 100}])
+        gauge.add('8 vs. 9', [{'value': ratio_eighth_seed, 'max_value': 100}])
+        
+        gauge.render_to_file('chart.svg')
+                                
+
+data = TourneyData()
+
+poopoo, caca, weenie, poopo = data.get_all_data()
+poop = data.first_round_history()

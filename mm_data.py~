@@ -151,5 +151,5 @@ class TourneyData:
 
 data = TourneyData()
 
-team_dict, tourney_results_dict, tourney_seeds_dict, ts_dict = data.get_all_data()
-first_round = data.first_round_history()
+poopoo, caca, weenie, poopo = data.get_all_data()
+poop = data.first_round_history()

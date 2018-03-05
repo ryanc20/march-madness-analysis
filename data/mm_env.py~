@@ -1,0 +1,17 @@
+class Env:
+    def __init__(self):
+        self.actions = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16"]
+        self.
+
+    def get_possible_actions(self, state):
+        """
+        state will be given as a string of format "SEED-SEED", the possible actions will be the 
+        2 different seeds.
+        """
+        print(state, state[:2], state[3:5])
+        if state[:2] in self.actions:
+            print("yep")
+
+env = Env()
+
+env.get_possible_actions("01-16")

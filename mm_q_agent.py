@@ -27,9 +27,10 @@ class QAgent:
         """
         final_four = []
         championship = []
-        conferences = ["East", "Midwest", "South", "West"]
-        for conference in conferences:
-            print("CONFERENCE:", conference)
+        conferences = {"W": "East", "X": "Midwest", "Y": "South", "Z": "West"}
+        for conf in conferences:
+            print("CONFERENCE:", conferences[conf])
+
             round_1  = self.env.get_round_one()
             print("ROUND1:", round_1)
 
@@ -37,10 +38,7 @@ class QAgent:
             for state in round_1:        
                 action = self.env.get_action(self.q, state, self.epsilon)
                 first_r_actions.append(action)
-                #reward, next_action = self.env.step(action)
-                
-                #self.q[(state, action)] += self.alpha * (reward + self.gamma * q[(state, next_action)])
-
+             
             round_2 = self.env.get_round_two(first_r_actions)
             print("ROUND2:", round_2)
 
@@ -66,11 +64,10 @@ class QAgent:
                 fourth_r_actions.append(action)
             
             final_four.append(fourth_r_actions[0])
+
             print("WINNER:", fourth_r_actions)
-            print()
 
         print("FINAL FOUR:", final_four)
-        print()
 
         formatted_final_four = []
         formatted_final_four.append("{}-{}".format(final_four[0], final_four[-1]))
@@ -81,7 +78,6 @@ class QAgent:
             championship.append(action)
         
         print("CHAMPIONSHIP:", championship)
-        print()
         
         formatted_championship = []
         formatted_championship.append("{}-{}".format(championship[0], championship[-1]))

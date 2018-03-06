@@ -52,14 +52,14 @@ class TourneyData:
         #ts_dict = self.match_seeds()
         return team_dict, tourney_results_dict, tourney_seeds_dict
 
-    """
+    
     def match_seeds(self):
         for year1 in self.tourney_results_dict:
             for year2 in self.tourney_seeds_dict:
                 if year1 == year2:
-                    for winning_team, losing_team in self.tourney_results_dict[year1].items():
+                    for winning_team, losing_team in self.tourney_results_dict[year1]:
                         #print(year1, key1, self.tourney_results_dict[year1][key1])
-                        for seed, team in self.tourney_seeds_dict[year2].items():
+                        for seed, team in self.tourney_seeds_dict[year2]:
                             if winning_team == team:
                                 w_team = team
                                 w_seed = seed
@@ -71,7 +71,7 @@ class TourneyData:
                         losing = "{}-{}".format(l_team, l_seed)
                         self.tsr_dict[year].update({winning : losing})
         return self.tsr_dict
-    """
+    
 
     def get_tourney_slots(self):
         with open(self.tourney_slots_csv) as ts_csv:
@@ -260,4 +260,4 @@ class TourneyData:
 data = TourneyData()
 
 #team_dict, tourney_results_dict, tourney_seeds_dict = data.get_all_data()
-poop = data.get_tourney_rounds("X", "2002")
+test = data.get_tourney_rounds("X", "2002")

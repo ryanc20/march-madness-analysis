@@ -1,6 +1,7 @@
 import pygal
 import csv
 from collections import defaultdict
+from collections import Counter
 
 class TourneyData:
     def __init__(self):
@@ -9,7 +10,8 @@ class TourneyData:
         self.tourney_seeds_csv = "data/TourneySeeds.csv"
         self.tourney_slots_csv = "data/TourneySlots.csv"
         self.team_dict = {}
-        self.tourney_results_dict = defaultdict(dict)
+
+        self.tourney_results_dict = defaultdict(list)
         self.tourney_seeds_dict = defaultdict(dict)
         self.tsr_dict = defaultdict(dict)
         self.ts_dict = defaultdict(dict)
@@ -30,7 +32,7 @@ class TourneyData:
                 year = row1["Season"]
                 winning_team = row1["Wteam"]
                 losing_team = row1["Lteam"]
-                self.tourney_results_dict[year].update({winning_team : losing_team})
+                self.tourney_results_dict[year].append([winning_team, losing_team])
         return self.tourney_results_dict
     
     def get_tourney_seeds(self):
@@ -47,9 +49,10 @@ class TourneyData:
         team_dict = self.get_team_dict()
         tourney_results_dict = self.get_tourney_results()
         tourney_seeds_dict = self.get_tourney_seeds()
-        ts_dict = self.match_seeds()
-        return team_dict, tourney_results_dict, tourney_seeds_dict, ts_dict
+        #ts_dict = self.match_seeds()
+        return team_dict, tourney_results_dict, tourney_seeds_dict
 
+    """
     def match_seeds(self):
         for year1 in self.tourney_results_dict:
             for year2 in self.tourney_seeds_dict:
@@ -68,7 +71,8 @@ class TourneyData:
                         losing = "{}-{}".format(l_team, l_seed)
                         self.tsr_dict[year].update({winning : losing})
         return self.tsr_dict
-    
+    """
+
     def get_tourney_slots(self):
         with open(self.tourney_slots_csv) as ts_csv:
             reader = csv.DictReader(ts_csv)
@@ -148,8 +152,112 @@ class TourneyData:
         
         gauge.render_to_file('chart.svg')
                                 
+    def get_tourney_rounds(self, conference, year):
+        """
+        Returns the ACTUAL results of each round of the March Madness tournament
+        for the given conference and year.
+        
+        The format is identical to the q_agent's output format allowing the
+        agent to compare the output with the actual output for a conference 
+        and year to update rewards in the q-table.
+        """
+        ts_dict = self.get_tourney_slots()
+        seed_dict = self.get_tourney_seeds()
+        tr_dict = self.get_tourney_results()
+        
+        round_1 = []
+        round_2 = []
+        round_3 = []
+        round_4 = []
+
+        round1_winners = []
+
+        for seed, team in seed_dict[year].items():
+            for winning, losing in tr_dict[year]:
+                if team == winning and conference in seed:
+                    round1_winners.append(seed[1:])
+        
+        #remove duplicates
+        round1_winners = list(set(round1_winners))
+            
+        for slot, matchup in ts_dict[year].items():
+            if conference in slot and "R1" in slot:
+                #print(slot, matchup)      
+                round_1.append("{}-{}".format(matchup[1:3], matchup[-2:]))
+        round_1 = sorted(round_1)
+
+        #for match in round_1:
+        for winner1 in round1_winners:
+            if winner1 in round_1[0]:
+                for winner2 in round1_winners:
+                    if winner2 in round_1[-1]:
+                        round_2.append("{}-{}".format(winner1, winner2))
+            if winner1 in round_1[1]:
+                for winner2 in round1_winners:
+                    if winner2 in round_1[-2]:
+                        round_2.append("{}-{}".format(winner1, winner2))
+            if winner1 in round_1[2]:
+                for winner2 in round1_winners:
+                    if winner2 in round_1[-3]:
+                        round_2.append("{}-{}".format(winner1, winner2))
+            if winner1 in round_1[3]:
+                for winner2 in round1_winners:
+                    if winner2 in round_1[-4]:
+                        round_2.append("{}-{}".format(winner1, winner2))
+        round_2 = sorted(round_2)
+
+        win_counter = defaultdict(int)
+        for seed, team in seed_dict[year].items():        
+            for winning, losing in tr_dict[year]:
+                if team == winning and conference in seed:
+                    win_counter[winning] += 1
+        
+        round2_winners = []
+        for seed, team in seed_dict[year].items():
+            for team2, count in win_counter.items():
+                if team == team2 and count > 1:
+                    round2_winners.append(seed[1:])
+        
+        for winner1 in round2_winners:
+            if winner1 in round_2[0]:
+                for winner2 in round2_winners:
+                    if winner2 in round_2[-1]:
+                        round_3.append("{}-{}".format(winner1, winner2))
+            if winner1 in round_2[1]:
+                for winner2 in round2_winners:
+                    if winner2 in round_2[-2]:
+                        round_3.append("{}-{}".format(winner1, winner2))
+        round_3 = sorted(round_3)
+        
+        round3_winners = []
+        for seed, team in seed_dict[year].items():
+            for team2, count in win_counter.items():
+                if team == team2 and count > 2:
+                    round3_winners.append(seed[1:])
+
+        for winner1 in round3_winners:
+            if winner1 in round_3[0]:
+                for winner2 in round3_winners:
+                    if winner2 in round_3[-1]:
+                        round_4.append("{}-{}".format(winner1, winner2))
+        round_4 = sorted(round_4)
+        
+        winner = []
+        for seed, team in seed_dict[year].items():
+            for team2, count in win_counter.items():
+                if team == team2 and count > 3:
+                    winner.append(seed[1:])
+
+        print("CONFERENCE: {}, YEAR: {}".format(conference, year))
+        print("ROUND1:", round_1)
+        print("ROUND2:", round_2)
+        print("ROUND3:", round_3)
+        print("ROUND4:", round_4)
+        print("WINNER:", winner)
+
+        return round_1, round_2, round_3, round_4, winner
 
 data = TourneyData()
 
-team_dict, tourney_results_dict, tourney_seeds_dict, ts_dict = data.get_all_data()
-first_round = data.first_round_history()
+#team_dict, tourney_results_dict, tourney_seeds_dict = data.get_all_data()
+poop = data.get_tourney_rounds("X", "2002")

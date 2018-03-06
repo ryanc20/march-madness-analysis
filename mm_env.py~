@@ -43,8 +43,6 @@ class Env:
         first_round = ["01-16", "02-15", "03-14", "04-13", "05-12", "06-11", "07-10", "08-09"]
 
         return first_round
-
-        return first_round, formatted_matchups
     
     def get_round_two(self, fr_actions):
         round_2 = []
@@ -64,7 +62,3 @@ class Env:
         round_4 = []
         round_4.append("{}-{}".format(third_r_actions[0], third_r_actions[-1]))
         return round_4
-        
-
-
-

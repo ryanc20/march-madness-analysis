@@ -29,6 +29,7 @@ class Env:
         """
         Moves to the next state and reward for the action
         """
+
         next_state = "{}-{}".format(action, action)
         reward = 1
         return reward, next_state
@@ -62,7 +63,3 @@ class Env:
         round_4 = []
         round_4.append("{}-{}".format(third_r_actions[0], third_r_actions[-1]))
         return round_4
-        
-
-
-

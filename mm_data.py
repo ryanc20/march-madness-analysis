@@ -164,13 +164,12 @@ class TourneyData:
         ts_dict = self.get_tourney_slots()
         seed_dict = self.get_tourney_seeds()
         tr_dict = self.get_tourney_results()
-        
-        round_1 = []
-        round_2 = []
-        round_3 = []
-        round_4 = []
 
-        round1_winners = []
+        round_1 = list()
+        round_2 = list()
+        round_3 = list()
+        round_4 = list()
+        round1_winners = list()
 
         for seed, team in seed_dict[year].items():
             for winning, losing in tr_dict[year]:
@@ -185,7 +184,7 @@ class TourneyData:
                 #print(slot, matchup)      
                 round_1.append("{}-{}".format(matchup[1:3], matchup[-2:]))
         round_1 = sorted(round_1)
-
+        
         #for match in round_1:
         for winner1 in round1_winners:
             if winner1 in round_1[0]:
@@ -205,14 +204,14 @@ class TourneyData:
                     if winner2 in round_1[-4]:
                         round_2.append("{}-{}".format(winner1, winner2))
         round_2 = sorted(round_2)
-
+       
         win_counter = defaultdict(int)
         for seed, team in seed_dict[year].items():        
             for winning, losing in tr_dict[year]:
                 if team == winning and conference in seed:
                     win_counter[winning] += 1
         
-        round2_winners = []
+        round2_winners = list()
         for seed, team in seed_dict[year].items():
             for team2, count in win_counter.items():
                 if team == team2 and count > 1:
@@ -228,8 +227,8 @@ class TourneyData:
                     if winner2 in round_2[-2]:
                         round_3.append("{}-{}".format(winner1, winner2))
         round_3 = sorted(round_3)
-        
-        round3_winners = []
+
+        round3_winners = list()
         for seed, team in seed_dict[year].items():
             for team2, count in win_counter.items():
                 if team == team2 and count > 2:
@@ -241,8 +240,8 @@ class TourneyData:
                     if winner2 in round_3[-1]:
                         round_4.append("{}-{}".format(winner1, winner2))
         round_4 = sorted(round_4)
-        
-        winner = []
+
+        winner = list()
         for seed, team in seed_dict[year].items():
             for team2, count in win_counter.items():
                 if team == team2 and count > 3:
@@ -255,9 +254,39 @@ class TourneyData:
         print("ROUND4:", round_4)
         print("WINNER:", winner)
 
+        del round1_winners[:]
+        del round2_winners[:]
+        del round3_winners[:]
+
         return round_1, round_2, round_3, round_4, winner
 
+    def get_complete_tourney_results(self, year):      
+        #East Conference Results
+        #w_round_1, w_round_2, w_round_3, w_round_4, w_winner = self.get_tourney_rounds("W", year)
+        #Midwest Conference Results
+        x_round_1, x_round_2, x_round_3, x_round_4, x_winner = self.get_tourney_rounds("X", year)
+        #South Conference Results
+        #y_round_1, y_round_2, y_round_3, y_round_4, y_winner = self.get_tourney_rounds("Y", year)
+        #West Conference Results
+        #z_round_1, z_round_2, z_round_3, z_round_4, z_winner = self.get_tourney_rounds("Z", year)
+        return 0
+        #print(win_counter)
+
+        #for seed, team in seed_dict[year]:
+            
+        
 data = TourneyData()
 
 #team_dict, tourney_results_dict, tourney_seeds_dict = data.get_all_data()
-test = data.get_tourney_rounds("X", "2002")
+year = "2002"
+#East Conference Results
+w_round_1, w_round_2, w_round_3, w_round_4, w_winner = data.get_tourney_rounds("W", year)
+#Midwest Conference Results
+x_round_1, x_round_2, x_round_3, x_round_4, x_winner = data.get_tourney_rounds("X", year)
+#South Conference Results
+y_round_1, y_round_2, y_round_3, y_round_4, y_winner = data.get_tourney_rounds("Y", year)
+#West Conference Results
+z_round_1, z_round_2, z_round_3, z_round_4, z_winner = data.get_tourney_rounds("Z", year)
+
+
+

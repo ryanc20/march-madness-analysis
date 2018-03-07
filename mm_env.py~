@@ -13,6 +13,7 @@ class Env:
         if ff == True:
             action1 = state[:3]
             action2 = state[4:7]
+            print(action1, action2)
         else:
             action1 = state[:2]
             action2 = state[3:5]

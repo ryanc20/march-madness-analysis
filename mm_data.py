@@ -175,13 +175,17 @@ class TourneyData:
             for winning, losing in tr_dict[year]:
                 if team == winning and conference in seed:
                     round1_winners.append(seed[1:])
-        
-        #remove duplicates
+        #removes duplicates because I did this part weirdly... HEHEH
         round1_winners = list(set(round1_winners))
-            
+
+        win_counter = defaultdict(int)
+        for seed, team in seed_dict[year].items():        
+            for winning, losing in tr_dict[year]:
+                if team == winning and conference in seed:
+                    win_counter[winning] += 1
+        
         for slot, matchup in ts_dict[year].items():
-            if conference in slot and "R1" in slot:
-                #print(slot, matchup)      
+            if conference in slot and "R1" in slot:  
                 round_1.append("{}-{}".format(matchup[1:3], matchup[-2:]))
         round_1 = sorted(round_1)
         
@@ -204,13 +208,7 @@ class TourneyData:
                     if winner2 in round_1[-4]:
                         round_2.append("{}-{}".format(winner1, winner2))
         round_2 = sorted(round_2)
-       
-        win_counter = defaultdict(int)
-        for seed, team in seed_dict[year].items():        
-            for winning, losing in tr_dict[year]:
-                if team == winning and conference in seed:
-                    win_counter[winning] += 1
-        
+
         round2_winners = list()
         for seed, team in seed_dict[year].items():
             for team2, count in win_counter.items():
@@ -247,46 +245,73 @@ class TourneyData:
                 if team == team2 and count > 3:
                     winner.append(seed[1:])
 
-        print("CONFERENCE: {}, YEAR: {}".format(conference, year))
+        conferences = {"W": "East", "X": "Midwest", "Y": "South", "Z": "West"}
+
+        print("CONFERENCE: {}, YEAR: {}".format(conferences[conference], year))
         print("ROUND1:", round_1)
         print("ROUND2:", round_2)
         print("ROUND3:", round_3)
         print("ROUND4:", round_4)
         print("WINNER:", winner)
 
-        del round1_winners[:]
-        del round2_winners[:]
-        del round3_winners[:]
+        #clearing out the tourney results dictionary
+        tr_dict.clear()
 
         return round_1, round_2, round_3, round_4, winner
 
     def get_complete_tourney_results(self, year):      
         #East Conference Results
-        #w_round_1, w_round_2, w_round_3, w_round_4, w_winner = self.get_tourney_rounds("W", year)
+        w_round_1, w_round_2, w_round_3, w_round_4, w_winner = self.get_tourney_rounds("W", year)
         #Midwest Conference Results
         x_round_1, x_round_2, x_round_3, x_round_4, x_winner = self.get_tourney_rounds("X", year)
         #South Conference Results
-        #y_round_1, y_round_2, y_round_3, y_round_4, y_winner = self.get_tourney_rounds("Y", year)
+        y_round_1, y_round_2, y_round_3, y_round_4, y_winner = self.get_tourney_rounds("Y", year)
         #West Conference Results
-        #z_round_1, z_round_2, z_round_3, z_round_4, z_winner = self.get_tourney_rounds("Z", year)
-        return 0
-        #print(win_counter)
-
-        #for seed, team in seed_dict[year]:
-            
+        z_round_1, z_round_2, z_round_3, z_round_4, z_winner = self.get_tourney_rounds("Z", year)
         
+        w_winner = "W{}".format(w_winner[0])
+        x_winner = "X{}".format(x_winner[0])
+        y_winner = "Y{}".format(y_winner[0])
+        z_winner = "Z{}".format(z_winner[0])
+        final_four = [w_winner, x_winner, y_winner, z_winner]
+
+        final_four_matchup = []
+        final_four_matchup.append("{}-{}".format(w_winner, x_winner))
+        final_four_matchup.append("{}-{}".format(y_winner, z_winner))
+
+        ts_dict = self.get_tourney_slots()
+        seed_dict = self.get_tourney_seeds()
+        tr_dict = self.get_tourney_results()
+
+        #counts number of wins each team in the final four got
+        ff_win_counter = defaultdict(int)
+        for seed, team in seed_dict[year].items():        
+            for winning, losing in tr_dict[year]:
+                for seed2 in final_four:
+                    if winning == team and seed == seed2:
+                        ff_win_counter[seed] += 1
+        championship = []
+        for matchup in final_four_matchup:
+            if ff_win_counter[matchup[:3]] > ff_win_counter[matchup[4:]]:
+                championship.append(matchup[:3])
+            else:
+                championship.append(matchup[4:])
+
+        championship_matchup = ["{}-{}".format(championship[0], championship[1])]
+        print(championship_matchup)
+
+        champion = []
+        for matchup in championship_matchup:
+            if ff_win_counter[matchup[:3]] > ff_win_counter[matchup[4:]]:
+                champion.append(matchup[:3])
+            else:
+                champion.append(matchup[4:])
+        print(champion)
 data = TourneyData()
 
 #team_dict, tourney_results_dict, tourney_seeds_dict = data.get_all_data()
 year = "2002"
-#East Conference Results
-w_round_1, w_round_2, w_round_3, w_round_4, w_winner = data.get_tourney_rounds("W", year)
-#Midwest Conference Results
-x_round_1, x_round_2, x_round_3, x_round_4, x_winner = data.get_tourney_rounds("X", year)
-#South Conference Results
-y_round_1, y_round_2, y_round_3, y_round_4, y_winner = data.get_tourney_rounds("Y", year)
-#West Conference Results
-z_round_1, z_round_2, z_round_3, z_round_4, z_winner = data.get_tourney_rounds("Z", year)
+test = data.get_complete_tourney_results(year)
 
 
 

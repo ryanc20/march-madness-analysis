@@ -80,7 +80,7 @@ class QAgent:
             formatted_championship = []
             formatted_championship.append("{}-{}".format(championship[0], championship[-1]))
             for state in formatted_championship:
-                action = self.env.get_action(self.q, state, self.epsilon, True)
+                action = self.env.get_action(self.q, state, self.epsilon)
                 winner = action
             print("CHAMPIONSHIP:", formatted_championship)
 

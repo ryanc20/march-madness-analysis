@@ -1,5 +1,6 @@
 import random
 import itertools
+import mm_data
 
 class Env:
     def __init__(self):
@@ -13,31 +14,78 @@ class Env:
         if ff == True:
             action1 = state[:3]
             action2 = state[4:7]
-            print(action1, action2)
         else:
             action1 = state[:2]
             action2 = state[3:5]
+
         possible_actions = [action1, action2]
-        r = random.random()
+        
+        #Random number between 0 and 1
+        r = random.uniform(0, 1)
+        
+        #Picks an action 
         if r < epsilon:
             action = random.choice(possible_actions)
+        elif r >= epsilon and r < epsilon + .01:
+            action = input("Who is more likely to win? {}, {}, or IDK\n".format(action1, action2))
+            if action == "IDK":
+                action = random.choice(possible_actions)
         else:
-            action = random.choice(possible_actions)
-        #else:
-         #   if q[(state, action1)] > q[(state, action2)]:
-          #      action = action1
-           # else:
-            #    action = action2
+            s_a_key1 = "{}-{}".format(state, action1)
+            s_a_key2 = "{}-{}".format(state, action2)
+            if q[s_a_key1] > q[s_a_key2]:
+                action = action1
+            else:
+                action = action2
+
         return action
 
-    def step(self, action):
+    def get_reward(self, action, year, conf, data, round_number):
         """
-        Moves to the next state and reward for the action
+        Returns reward for the action based on if the action is in the next state
         """
+        #No idea why, but had to cast them to be strings, QUITE annoying of an error to figure out.
+        round_1, round_2, round_3, round_4, winner = data.get_tourney_rounds(str(conf), str(year))
+        
+        flag = False
+        if round_number == 1:
+            for matchup in round_1:
+                #print("ACTION: {}, MATCHUP: {}".format(action, matchup))
+                if action in matchup:
+                    flag = True
+            if flag == True:
+                reward = 10
+            else:
+                reward = -10
 
-        next_state = "{}-{}".format(action, action)
-        reward = 1
-        return reward, next_state
+        elif round_number == 2:
+            for matchup in round_2:
+                if action in matchup:
+                    flag = True
+            if flag == True:
+                reward = 10
+            else:
+                reward = -10
+
+        elif round_number == 3:
+            for matchup in round_3:
+                if action in matchup:
+                    flag = True
+            if flag == True:
+                reward = 10
+            else:
+                reward = -10
+        
+        elif round_number == 4:
+            for matchup in round_4:
+                if action in matchup:
+                    flag = True
+            if flag == True:
+                reward = 10
+            else:
+                reward = -10
+
+        return reward
 
     def get_round_one(self):
         """

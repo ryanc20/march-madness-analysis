@@ -46,7 +46,7 @@ class QAgent:
                     reward = self.env.get_reward(action, year, conf, self.data, 1)
                     total_reward += reward
                     state_action_key = "{}-{}".format(state, action)
-                    self.q[state_action_key] += self.alpha * reward
+                    self.q[state_action_key] += reward
                     #print("REWARD: {}".format(reward))
                     first_r_actions.append(action)
                  
@@ -72,7 +72,7 @@ class QAgent:
                     reward = self.env.get_reward(action, year, conf, self.data, 3)
                     total_reward += reward
                     state_action_key = "{}-{}".format(state, action)
-                    self.q[state_action_key] += self.alpha * reward
+                    self.q[state_action_key] += reward
                     #print("REWARD: {}".format(reward))
                     third_r_actions.append(action)
 
@@ -85,12 +85,14 @@ class QAgent:
                     reward = self.env.get_reward(action, year, conf, self.data, 4)
                     total_reward += reward
                     state_action_key = "{}-{}".format(state, action)
-                    self.q[state_action_key] += self.alpha * reward
+                    self.q[state_action_key] += reward
                     #print("REWARD: {}".format(reward))
                     fourth_r_actions.append(action)
                 
                 final_four.append("{}{}".format(conf, fourth_r_actions[0]))
                 print("WINNER:", fourth_r_actions)
+                for key, value in self.q.items():
+                    print(key, value)
             print("TOTAL REWARD AFTER YEAR {} = {}".format(year, total_reward))
             formatted_final_four = []
             formatted_final_four.append("{}-{}".format(final_four[0], final_four[-1]))
@@ -109,7 +111,6 @@ class QAgent:
             print("CHAMPIONSHIP:", formatted_championship)
 
             print("NCAA CHAMPION:", "['{}']".format(winner))
-            print(self.q)
         
     def predict(self):
         """
@@ -128,7 +129,7 @@ class QAgent:
             third_round = []
             fourth_round = []
             
-
+            print("CONFERENCE: {}".format(conferences[conf]))
             round_1_winners = []
             for matchup in first_round:
                 action1 = matchup[:2]
@@ -139,13 +140,13 @@ class QAgent:
                     round_1_winners.append(action1)
                 else:
                     round_1_winners.append(action2)
-            print(first_round)
+            print("FIRST ROUND: {}".format(first_round))
 
             second_round.append("{}-{}".format(round_1_winners[0], round_1_winners[-1]))
             second_round.append("{}-{}".format(round_1_winners[1], round_1_winners[-2]))
             second_round.append("{}-{}".format(round_1_winners[2], round_1_winners[-3]))
             second_round.append("{}-{}".format(round_1_winners[3], round_1_winners[-4]))
-            print(second_round)
+            print("PREDICTED SECOND ROUND: {}".format(second_round))
 
             round_2_winners = []
             for matchup in second_round:
@@ -160,7 +161,7 @@ class QAgent:
 
             third_round.append("{}-{}".format(round_2_winners[0], round_2_winners[-1]))
             third_round.append("{}-{}".format(round_2_winners[1], round_2_winners[-2]))
-            print(third_round)
+            print("PREDICTED THIRD ROUND: {}".format(third_round))
 
             round_3_winners = []
             for matchup in third_round:
@@ -174,7 +175,7 @@ class QAgent:
                     round_3_winners.append(action2)
 
             fourth_round.append("{}-{}".format(round_3_winners[0], round_3_winners[-1]))
-            print(fourth_round)
+            print("PREDICTED FOURTH ROUND: {}".format(fourth_round))
             
             round_4_winner = []
             for matchup in third_round:
@@ -190,7 +191,7 @@ class QAgent:
 
         final_four_round.append("{}-{}".format(conf_winners[0], conf_winners[-1]))
         final_four_round.append("{}-{}".format(conf_winners[1], conf_winners[-2]))
-        print(final_four_round)
+        print("PREDICTED FINAL FOUR: {}".format(final_four_round))
         final_four_winners = []
         for matchup in final_four_round:
             action1 = matchup[:3]
@@ -203,7 +204,7 @@ class QAgent:
                 final_four_winners.append(action2)
 
         championship_round.append("{}-{}".format(final_four_winners[0], final_four_winners[-1]))
-        print(championship_round)
+        print("PREDICTED CHAMPIONSHIP: {}".format(championship_round))
 
         for matchup in championship_round:
             action1 = matchup[:3]
@@ -214,8 +215,9 @@ class QAgent:
                 champion.append(action1)
             else:
                 champion.append(action2)
-        print(champion)
+        print("PREDICTED NCAA CHAMPION: {}".format(champion))
+
 agent = QAgent(0.2, 0.2, 0.8)
-#agent.epsilon_greedy_train()
+agent.epsilon_greedy_train()
 agent.predict()
-#agent.predict()
+

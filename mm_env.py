@@ -51,33 +51,33 @@ class Env:
         
         flag = False
         if round_number == 1:
-            for matchup in round_1:
+            for matchup in round_2:
                 #print("ACTION: {}, MATCHUP: {}".format(action, matchup))
                 if action in matchup:
                     flag = True
             if flag == True:
                 reward = 10
             else:
-                reward = -10
+                reward = -20
 
         elif round_number == 2:
-            for matchup in round_2:
-                if action in matchup:
-                    flag = True
-            if flag == True:
-                reward = 10
-            else:
-                reward = -10
-
-        elif round_number == 3:
             for matchup in round_3:
                 if action in matchup:
                     flag = True
             if flag == True:
                 reward = 10
             else:
-                reward = -10
-        
+                reward = -20
+
+        elif round_number == 3:
+            for matchup in round_4:
+                if action in matchup:
+                    flag = True
+            if flag == True:
+                reward = 10
+            else:
+                reward = -20
+        #NEED TO UPDATE THIS ONE
         elif round_number == 4:
             for matchup in round_4:
                 if action in matchup:
@@ -85,19 +85,13 @@ class Env:
             if flag == True:
                 reward = 10
             else:
-                reward = -10
+                reward = -20
 
         return reward
 
     def get_round_one(self):
-        """
-        Based the match, determine both possible options (i.e. team 1 wins or team 2 wins).
-        
-        Returns the 2 seeds and team IDs of the current match
-        """
         #conference_dict = {"W": "East", "X": "Midwest", "Y": "South", "Z": "West"}
         first_round = ["01-16", "02-15", "03-14", "04-13", "05-12", "06-11", "07-10", "08-09"]
-
         return first_round
     
     def get_round_two(self, fr_actions):

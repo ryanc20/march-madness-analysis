@@ -42,40 +42,42 @@ class Env:
 
     def get_reward(self, action, year, conf, data, round_number):
         """
-        Returns reward for the action based on if the action is in the next state
+        Returns reward for the action based on if the action is in the next state.
+        The chosen reward values are subject to change, perhaps to mimick how the 
+        points are rewarded on a real bracket for March Madness.
         """
         #No idea why, but had to cast them to be strings, QUITE annoying of an error to figure out.
         round_1, round_2, round_3, round_4, winner = data.get_tourney_rounds(str(conf), str(year))
         
         flag = False
         if round_number == 1:
-            for matchup in round_1:
+            for matchup in round_2:
                 #print("ACTION: {}, MATCHUP: {}".format(action, matchup))
                 if action in matchup:
                     flag = True
             if flag == True:
                 reward = 10
             else:
-                reward = -10
+                reward = -100
 
         elif round_number == 2:
-            for matchup in round_2:
-                if action in matchup:
-                    flag = True
-            if flag == True:
-                reward = 10
-            else:
-                reward = -10
-
-        elif round_number == 3:
             for matchup in round_3:
                 if action in matchup:
                     flag = True
             if flag == True:
                 reward = 10
             else:
-                reward = -10
-        
+                reward = -100
+
+        elif round_number == 3:
+            for matchup in round_4:
+                if action in matchup:
+                    flag = True
+            if flag == True:
+                reward = 10
+            else:
+                reward = -100
+        #NEED TO UPDATE THIS ONE
         elif round_number == 4:
             for matchup in round_4:
                 if action in matchup:
@@ -83,19 +85,13 @@ class Env:
             if flag == True:
                 reward = 10
             else:
-                reward = -10
+                reward = -100
 
         return reward
 
     def get_round_one(self):
-        """
-        Based the match, determine both possible options (i.e. team 1 wins or team 2 wins).
-        
-        Returns the 2 seeds and team IDs of the current match
-        """
         #conference_dict = {"W": "East", "X": "Midwest", "Y": "South", "Z": "West"}
         first_round = ["01-16", "02-15", "03-14", "04-13", "05-12", "06-11", "07-10", "08-09"]
-
         return first_round
     
     def get_round_two(self, fr_actions):

@@ -117,10 +117,105 @@ class QAgent:
         will be able to (hopefully) predict the outcome of a future tournament.
         """
         conferences = {"W": "East", "X": "Midwest", "Y": "South", "Z": "West"}
-        #for conf in conferences:
-            
-            
-agent = QAgent(0.2, 0.2, 0.8)
-agent.epsilon_greedy_train()
+        conf_winners = []
+        final_four_round = []
+        championship_round = []
+        champion = []
 
+        for conf in conferences:
+            first_round = ["01-16", "02-15", "03-14", "04-13", "05-12", "06-11", "07-10", "08-09"]
+            second_round = []
+            third_round = []
+            fourth_round = []
+            
+
+            round_1_winners = []
+            for matchup in first_round:
+                action1 = matchup[:2]
+                action2 = matchup[3:]
+                s_a_key1 = "{}-{}".format(matchup, action1)
+                s_a_key2 = "{}-{}".format(matchup, action2)
+                if self.q[s_a_key1] >= self.q[s_a_key2]:
+                    round_1_winners.append(action1)
+                else:
+                    round_1_winners.append(action2)
+            print(first_round)
+
+            second_round.append("{}-{}".format(round_1_winners[0], round_1_winners[-1]))
+            second_round.append("{}-{}".format(round_1_winners[1], round_1_winners[-2]))
+            second_round.append("{}-{}".format(round_1_winners[2], round_1_winners[-3]))
+            second_round.append("{}-{}".format(round_1_winners[3], round_1_winners[-4]))
+            print(second_round)
+
+            round_2_winners = []
+            for matchup in second_round:
+                action1 = matchup[:2]
+                action2 = matchup[3:]
+                s_a_key1 = "{}-{}".format(matchup, action1)
+                s_a_key2 = "{}-{}".format(matchup, action2)
+                if self.q[s_a_key1] >= self.q[s_a_key2]:
+                    round_2_winners.append(action1)
+                else:
+                    round_2_winners.append(action2)
+
+            third_round.append("{}-{}".format(round_2_winners[0], round_2_winners[-1]))
+            third_round.append("{}-{}".format(round_2_winners[1], round_2_winners[-2]))
+            print(third_round)
+
+            round_3_winners = []
+            for matchup in third_round:
+                action1 = matchup[:2]
+                action2 = matchup[3:]
+                s_a_key1 = "{}-{}".format(matchup, action1)
+                s_a_key2 = "{}-{}".format(matchup, action2)
+                if self.q[s_a_key1] >= self.q[s_a_key2]:
+                    round_3_winners.append(action1)
+                else:
+                    round_3_winners.append(action2)
+
+            fourth_round.append("{}-{}".format(round_3_winners[0], round_3_winners[-1]))
+            print(fourth_round)
+            
+            round_4_winner = []
+            for matchup in third_round:
+                action1 = matchup[:2]
+                action2 = matchup[3:]
+                s_a_key1 = "{}-{}".format(matchup, action1)
+                s_a_key2 = "{}-{}".format(matchup, action2)
+                if self.q[s_a_key1] >= self.q[s_a_key2]:
+                    round_4_winner.append(action1)
+                else:
+                    round_4_winner.append(action2)
+            conf_winners.append("{}{}".format(conf, round_4_winner[0]))
+
+        final_four_round.append("{}-{}".format(conf_winners[0], conf_winners[-1]))
+        final_four_round.append("{}-{}".format(conf_winners[1], conf_winners[-2]))
+        print(final_four_round)
+        final_four_winners = []
+        for matchup in final_four_round:
+            action1 = matchup[:3]
+            action2 = matchup[4:]
+            s_a_key1 = "{}-{}".format(matchup, action1)
+            s_a_key2 = "{}-{}".format(matchup, action2)
+            if self.q[s_a_key1] >= self.q[s_a_key2]:
+                final_four_winners.append(action1)
+            else:
+                final_four_winners.append(action2)
+
+        championship_round.append("{}-{}".format(final_four_winners[0], final_four_winners[-1]))
+        print(championship_round)
+
+        for matchup in championship_round:
+            action1 = matchup[:3]
+            action2 = matchup[4:]
+            s_a_key1 = "{}-{}".format(matchup, action1)
+            s_a_key2 = "{}-{}".format(matchup, action2)
+            if self.q[s_a_key1] >= self.q[s_a_key2]:
+                champion.append(action1)
+            else:
+                champion.append(action2)
+        print(champion)
+agent = QAgent(0.2, 0.2, 0.8)
+#agent.epsilon_greedy_train()
+agent.predict()
 #agent.predict()

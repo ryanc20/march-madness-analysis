@@ -8,8 +8,11 @@ class Env:
 
     def get_action(self, q, state, epsilon, ff=False):
         """
-        state will be given as a string of format "SEED-SEED", the possible actions will be the 
-        2 different seeds.
+        An action is chosen in an epsilon greedy fashion. A random number between 0 and 1
+        is generated, if that value is less than epsilon, a random value is chosen. If the
+        value is greater than epsilon but less than (epsilon + .01) (1% chance) the user predicts
+        the winner of the matchup. Otherwise the max q value is chosen between the two possible
+        actions aka teams playing eachother.
         """
         if ff == True:
             action1 = state[:3]
@@ -58,34 +61,33 @@ class Env:
             if flag == True:
                 reward = 10
             else:
-                reward = -20
+                reward = -25
 
         elif round_number == 2:
             for matchup in round_3:
                 if action in matchup:
                     flag = True
             if flag == True:
-                reward = 10
+                reward = 20
             else:
-                reward = -20
+                reward = -50
 
         elif round_number == 3:
             for matchup in round_4:
                 if action in matchup:
                     flag = True
             if flag == True:
-                reward = 10
+                reward = 30
             else:
-                reward = -20
-        #NEED TO UPDATE THIS ONE
+                reward = -75
+
         elif round_number == 4:
-            for matchup in round_4:
-                if action in matchup:
-                    flag = True
+            if action in winner:
+                flag = True
             if flag == True:
-                reward = 10
+                reward = 40
             else:
-                reward = -20
+                reward = -100
 
         return reward
 

@@ -7,6 +7,10 @@ Using previous March Madness data to help me predict games for my bracket this y
 ## Generated Bracket
 ![alt text](https://github.com/ryanc20/march-madness-analysis/blob/master/bracket.PNG "Generated Bracket")
 
+### Results
+Wasn't perfect...
+PTS 890, PCT 82.1, 3rd Place in my bracket pool. 
+
 ## Future Plans
 1. ~~Implement a decision tree to decide the winner for each game.~~
 2. Implement a Q-Learning Algorithm to determine winner for each game based on previous years. (Finished)
